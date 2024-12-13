@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const ViewSalesPage = () => {
+const ViewPurchasePage = () => {
   // Initialize all components
   const [data, setData] = useState([]);
   const router = useRouter();
@@ -17,29 +17,25 @@ const ViewSalesPage = () => {
   };
 
   // Handle page route
-  const add_sale_routing = () => {
-    router.push("/dashboard/sales/add_sale");
+  const add_purchase_routing = () => {
+    router.push("/dashboard/purchase/add_purchase");
   };
 
   useEffect(() => {
-    // Just load data from localStorage for now
     loadFromLocalStorage();
   }, []);
 
   return (
     <div>
-      {/* Page Title */}
-      <h1>Sales</h1>
-      {/* Display table containing data from localStorage */}
+      <h1>Purchases</h1>
       <table border="1" style={{ width: "100%", textAlign: "left" }}>
         <thead>
           <tr>
+            <th>ID</th>
             <th>Date</th>
             <th>Transaction No.</th>
             <th>Quantity</th>
-            <th>Sales Price per unit (RM)</th>
-            <th>Total Amount (RM)</th>
-            <th>Total Cost (RM)</th>
+            <th>Cost</th>
           </tr>
         </thead>
         <tbody>
@@ -47,10 +43,9 @@ const ViewSalesPage = () => {
             data.map((item) => (
               <tr key={item.transaction_id}>
                 <td>{item.transaction_id}</td>
+                <td>{item.date}</td>
                 <td>{item.quantity}</td>
-                <td>{item.price_per_unit}</td>
-                <td>{item.total_amount}</td>
-                <td>{item.total_cost}</td>
+                <td>{item.cost}</td>
               </tr>
             ))
           ) : (
@@ -61,11 +56,11 @@ const ViewSalesPage = () => {
         </tbody>
       </table>
       {/* Button to register a new item */}
-      <button onClick={add_sale_routing} style={{ padding: "10px 20px", cursor: "pointer", backgroundColor: "darkgreen" }}>
-      Add Sale Entry
+      <button onClick={add_purchase_routing} style={{ padding: "10px 20px", cursor: "pointer", backgroundColor: "darkgreen" }}>
+      Add Purchase Entry
       </button>
     </div>
   );
 };
 
-export default ViewSalesPage;
+export default ViewPurchasePage;
