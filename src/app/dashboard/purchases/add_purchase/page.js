@@ -5,7 +5,7 @@ const AddPurchasePage = () => {
   const [formData, setFormData] = useState({
     transaction_no: "",
     date: "",
-    quanity: "",
+    quantity: "",
     cost: "",
     total_cost: ""
   });
@@ -17,7 +17,7 @@ const AddPurchasePage = () => {
 
   useEffect(() => {
     // Load data from localStorage when the component mounts
-    const storedData = localStorage.getItem("formData");
+    const storedData = localStorage.getItem("purchase_data");
     if (storedData) {
       setSubmittedData(JSON.parse(storedData));
     }
@@ -45,40 +45,78 @@ const AddPurchasePage = () => {
     }
 
     //Quantity validation
-    if (!formData.quanity) {
+    function safeConvertToNumber(input) {
+      const num = Number(input);
+      return isNaN(num) ? null : num;
+    }
+    let testQuantity = formData.quantity;
+    testQuantity = safeConvertToNumber(testQuantity);
+    if (!testQuantity) {
+      newErrors.quantity = "quantity is required and must be a number.";
+    } else {
+        // Checks all extra conditions
+        const isQuantityValid = [
+        { check: () => Number.isInteger(testQuantity), message: 'Quantity must be an integer.' },
+        { check: () => testQuantity >= 0, message: 'Quantity must be a non-negative number.' }
+      ];
 
+      for (const { check, message } of isQuantityValid) {
+        // Return this first error for the variable, as errors are designed in common order ( top to bottom )
+        if (!check()) {
+          newErrors.quantity = message
+          break;
+        }
+      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }
 
-  const calculateFinalCost = () => {
-    formData.total_cost = formData.cost * formData.quanity
+  const calculateFinalCost = (cost, quantity) => {
+    // Calculate total cost to two decimal places
+    const result = parseFloat((parseFloat(cost) * parseInt(quantity)).toFixed(2));
+    return result
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     if (validate()) {
-
-      const updatedData = [...submittedData, formData];
+      // Create an updated formData object with total_cost
+      const updatedFormData = {
+        ...formData,
+        total_cost: calculateFinalCost(formData.cost, formData.quantity),
+      };
+  
+      // Update submittedData and save to localStorage
+      const updatedData = [...submittedData, updatedFormData];
       setSubmittedData(updatedData);
-
-      // Store the data in localStorage
-      localStorage.setItem("formData", JSON.stringify(updatedData));
-
+      localStorage.setItem("purchase_data", JSON.stringify(updatedData));
+  
+      // Retrieve existing totals from localStorage
+      const existingTotalCost = parseFloat(localStorage.getItem('total_cost')) || 0;
+      const existingTotalQuantity = parseInt(localStorage.getItem('total_quantity')) || 0;
+  
+      // Update and save total cost and quantity
+      const updatedTotalCost = parseFloat((existingTotalCost + updatedFormData.total_cost).toFixed(2));
+      const updatedTotalQuantity = existingTotalQuantity + parseInt(updatedFormData.quantity);
+  
+      localStorage.setItem('total_cost', updatedTotalCost.toString());
+      localStorage.setItem('total_quantity', updatedTotalQuantity.toString());
+  
       // Reset the form
       setFormData({
         transaction_no: "",
         date: "",
-        quanity: "",
+        quantity: "", // Fixed typo here
         cost: "",
-        total_cost: ""
+        total_cost: "",
       });
       setErrors({});
     }
   };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,10 +157,10 @@ const AddPurchasePage = () => {
           <input
             type="text"
             name="quantity"
-            value={formData.quanity}
+            value={formData.quantity}
             onChange={handleChange}
           />
-          <p style={{ color: "red" }}>{errors.quanity}</p>
+          <p style={{ color: "red" }}>{errors.quantity}</p>
         </div>
         <div style={{ marginBottom: "10px" }}>
           <label>Cost: </label>
@@ -142,19 +180,21 @@ const AddPurchasePage = () => {
         <table border="1" style={{ width: "100%", textAlign: "left" }}>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Age</th>
+              <th>Transaction No.</th>
+              <th>Quantity</th>
               <th>Date</th>
               <th>Cost</th>
+              <th>Total Cost</th>
             </tr>
           </thead>
           <tbody>
             {submittedData.map((item, index) => (
               <tr key={index}>
-                <td>{item.name}</td>
-                <td>{item.age}</td>
+                <td>{item.transaction_no}</td>
+                <td>{item.quantity}</td>
                 <td>{item.date}</td>
                 <td>{item.cost}</td>
+                <td>{item.total_cost}</td>
               </tr>
             ))}
           </tbody>

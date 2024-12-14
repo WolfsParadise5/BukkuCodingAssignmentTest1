@@ -18,7 +18,7 @@ const ViewPurchasePage = () => {
 
   // Handle page route
   const add_purchase_routing = () => {
-    router.push("/dashboard/purchase/add_purchase");
+    router.push("/dashboard/purchases/add_purchase");
   };
 
   useEffect(() => {
@@ -41,11 +41,12 @@ const ViewPurchasePage = () => {
         <tbody>
           {data.length > 0 ? (
             data.map((item) => (
-              <tr key={item.transaction_id}>
-                <td>{item.transaction_id}</td>
+              <tr key={item.transaction_no}>
+                <td>{item.transaction_no}</td>
                 <td>{item.date}</td>
                 <td>{item.quantity}</td>
                 <td>{item.cost}</td>
+                <td>{item.total_cost}</td>
               </tr>
             ))
           ) : (
