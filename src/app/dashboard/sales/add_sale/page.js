@@ -18,16 +18,16 @@ export default function AddSale() {
     const today = new Date().toISOString().split("T")[0];
     const [existingQuantity, setExistingQuantity] = useState(0);
     const [existingTotalCost, setExistingTotalCost] = useState(0);
-    
-    // Fetch existing localStorage values
-    const storedLatestDate = localStorage.getItem("latest_date") || "1970-01-01";
 
     useEffect(() => {
         const storedQuantity = localStorage.getItem('total_quantity');
         const storedTotalCost = localStorage.getItem("total_cost");
+         // Fetch existing localStorage values
+        const storedLatestDate = localStorage.getItem("latest_date");
 
         setExistingQuantity(storedQuantity ? parseInt(storedQuantity) : 0);
         setExistingTotalCost(storedTotalCost ? parseFloat(storedTotalCost) : 0);
+        setLatestDate(storedLatestDate);
 
         const storedData = localStorage.getItem("sales_data");
         if (storedData) {
@@ -50,11 +50,10 @@ export default function AddSale() {
           setLatestDate(updatedDateString);
       }
     };
-
     // Calculate weighted cost average ( for cost calculation purposes )
-    const calculateWAC = (quantity, price_per_unit) => {
-      if (quantity && price_per_unit) {
-          return parseFloat((parseFloat(price_per_unit) * parseInt(quantity)).toFixed(2));
+    const calculateWAC = (total_cost, quantity) => {
+      if (quantity && total_cost) {
+          return parseFloat((parseFloat(total_cost) / parseInt(quantity)).toFixed(2));
       }
       return 0;
     };
@@ -62,19 +61,22 @@ export default function AddSale() {
     // Validates data in the form
     const validate = () => {
         const newErrors = {};
-
+        //  Fetch existing sales data from localStorage
+        const existingSalesData = JSON.parse(localStorage.getItem("sales_data")) || [];
         // Date validation
         if (!formData.date) {
             newErrors.date = "Date is required.";
-        } else if (new Date(formData.date) < new Date(storedLatestDate) || new Date(formData.date) > new Date()) {
+        } else if (new Date(formData.date) < new Date(latestDate)+1 || new Date(formData.date) > new Date()) {
             newErrors.date = "Date must be between a previous transaction and today.";
         }
 
         // Transaction No. validation
         if (!formData.transaction_id) {
-            newErrors.transaction_id = "Transaction No. is required.";
+            newErrors.transaction_id = "Transaction ID. is required.";
         } else if (!/^[a-zA-Z0-9]+$/.test(formData.transaction_id)) {
-            newErrors.transaction_id = "Transaction No. can only contain numbers and letters.";
+            newErrors.transaction_id = "Transaction ID. can only contain numbers and letters.";
+        } else if (existingSalesData.some(data => data.transaction_id === formData.transaction_id)) {
+          newErrors.transaction_no = "Transaction ID. already exists. Please use a unique value.";
         }
 
         // Quantity validation
@@ -106,7 +108,8 @@ export default function AddSale() {
 
         if (validate()) {
             const totalCost = parseFloat((formData.quantity * formData.price_per_unit).toFixed(2));
-            const totalCostAmount = parseFloat((calculateWAC(formData.quantity, formData.price_per_unit) * formData.price_per_unit).toFixed(2));
+            const wac = calculateWAC(localStorage.getItem('total_cost'), localStorage.getItem('total_quantity'));
+            const totalCostAmount = parseFloat(wac * parseInt(formData.quantity)).toFixed(2);
 
             // Update localStorage values
             const updatedQuantity = existingQuantity - formData.quantity;
@@ -167,7 +170,7 @@ export default function AddSale() {
                         value={formData.date}
                         onChange={handleChange}
                         max={today}
-                        min={storedLatestDate}
+                        min={latestDate}
                     />
                     <p style={{ color: "red" }}>{errors.date}</p>
                 </div>
