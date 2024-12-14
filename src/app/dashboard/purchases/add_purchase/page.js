@@ -151,7 +151,7 @@ const AddPurchasePage = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Form Without Plugins</h1>
+      <h1>Add Purchase</h1>
       <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
         <div style={{ marginBottom: "10px" }}>
           <label>Transaction No.: </label>
