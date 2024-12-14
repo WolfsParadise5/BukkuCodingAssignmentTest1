@@ -42,7 +42,7 @@ const MainPage = () => {
             {isDataLoaded ? (
                 <div className="status_data" style={{ marginBottom: "20px" }}>
                     <h2>Total Quantity: {totalQuantity}</h2>
-                    <h2>Total Cost (RM): {totalCost.toFixed(2)}</h2>
+                    <h2>Total Amount(RM): {totalCost.toFixed(2)}</h2>
                     <h2>Weighted Average Cost (WAC) in RM: {calculateWAC(totalQuantity, totalCost)}</h2>
                 </div>
             ) : (
