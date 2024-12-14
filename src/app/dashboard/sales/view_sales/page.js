@@ -10,7 +10,7 @@ const ViewSalesPage = () => {
 
   // Function to load data from localStorage
   const loadFromLocalStorage = () => {
-    const purchase_data = localStorage.getItem("purchase_data");
+    const purchase_data = localStorage.getItem("sales_data");
     if (purchase_data) {
       setData(JSON.parse(purchase_data));
     }

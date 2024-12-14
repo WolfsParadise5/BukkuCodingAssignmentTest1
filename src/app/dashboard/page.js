@@ -22,7 +22,7 @@ const MainPage = () => {
             <div className="status_data" style={{ marginBottom: "20px" }}>
                 <h2>Total Quantity: {localStorage.getItem('total_quantity') || 0}</h2>
                 <h2>Total Cost(RM): {localStorage.getItem('total_cost') || 0}</h2>
-                <h2>Weighted Average Cost(WAC): {calculateWAC(localStorage.getItem('total_quantity'),localStorage.getItem('total_cost'))}</h2>
+                <h2>Weighted Average Cost(WAC): {calculateWAC(localStorage.getItem('total_quantity'),localStorage.getItem('total_cost')) || 0}</h2>
             </div>
             <div className="button_options" style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
                 <button
