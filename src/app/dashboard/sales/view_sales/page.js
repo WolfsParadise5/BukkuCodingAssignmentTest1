@@ -39,6 +39,7 @@ const ViewSalesPage = () => {
             <th>Quantity</th>
             <th>Sales Price per unit (RM)</th>
             <th>Total Amount (RM)</th>
+            <th>Total Cost (RM)</th>
           </tr>
         </thead>
         <tbody>
@@ -50,6 +51,7 @@ const ViewSalesPage = () => {
                 <td>{item.quantity}</td>
                 <td>{item.price_per_unit}</td>
                 <td>{item.total_amount}</td>
+                <td>{item.total_cost}</td>
               </tr>
             ))
           ) : (

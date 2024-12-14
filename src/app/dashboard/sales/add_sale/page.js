@@ -10,6 +10,7 @@ export default function AddSale() {
       quantity: "",
       price_per_unit: "",
       total_amount: 0,
+      total_cost: 0
     });
     const [errors, setErrors] = useState({});
     const [latestDate, setLatestDate] = useState("");
@@ -36,10 +37,26 @@ export default function AddSale() {
 
     // To set the latest date into localStorage
     const updateLatestDate = (newDate) => {
-      if (!latestDate || new Date(newDate) > new Date(latestDate)) {
-          localStorage.setItem("latest_date", newDate);
-          setLatestDate(newDate);
+      // Parse the newDate and add 1 day
+      let updatedDate = new Date(newDate);
+      updatedDate.setDate(updatedDate.getDate() + 1);
+  
+      // Convert updatedDate back to a string if necessary (e.g., ISO format)
+      let updatedDateString = updatedDate.toISOString().split('T')[0]; // Example format: "YYYY-MM-DD"
+  
+      // Compare and update the latestDate if necessary
+      if (!latestDate || new Date(updatedDateString) > new Date(latestDate)) {
+          localStorage.setItem("latest_date", updatedDateString);
+          setLatestDate(updatedDateString);
       }
+    };
+
+    // Calculate weighted cost average ( for cost calculation purposes )
+    const calculateWAC = (quantity, price_per_unit) => {
+      if (quantity && price_per_unit) {
+          return parseFloat((parseFloat(price_per_unit) * parseInt(quantity)).toFixed(2));
+      }
+      return 0;
     };
 
     // Validates data in the form
@@ -89,6 +106,7 @@ export default function AddSale() {
 
         if (validate()) {
             const totalCost = parseFloat((formData.quantity * formData.price_per_unit).toFixed(2));
+            const totalCostAmount = parseFloat((calculateWAC(formData.quantity, formData.price_per_unit) * formData.price_per_unit).toFixed(2));
 
             // Update localStorage values
             const updatedQuantity = existingQuantity - formData.quantity;
@@ -104,6 +122,7 @@ export default function AddSale() {
             const updatedFormData = {
                 ...formData,
                 total_amount: totalCost,
+                total_cost: totalCostAmount
             };
 
             // Update submittedData and save to localStorage
@@ -122,6 +141,7 @@ export default function AddSale() {
               quantity: "",
               price_per_unit: "",
               total_amount: 0,
+              total_cost: 0
             });
             setErrors({});
         }
@@ -147,7 +167,7 @@ export default function AddSale() {
                         value={formData.date}
                         onChange={handleChange}
                         max={today}
-                        min="1971-01-01"
+                        min={storedLatestDate}
                     />
                     <p style={{ color: "red" }}>{errors.date}</p>
                 </div>
@@ -195,6 +215,7 @@ export default function AddSale() {
                 <th>Quantity</th>
                 <th>Sales Price per unit (RM)</th>
                 <th>Total Amount (RM)</th>
+                <th>Total Cost (RM)</th>
               </tr>
             </thead>
             <tbody>
@@ -205,6 +226,7 @@ export default function AddSale() {
                   <td>{item.quantity}</td>
                   <td>{item.price_per_unit}</td>
                   <td>{item.total_amount}</td>
+                  <td>{item.total_cost}</td>
                 </tr>
               ))}
             </tbody>

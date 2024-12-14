@@ -26,11 +26,19 @@ const AddPurchasePage = () => {
 
   // To set the latest date into localStorage
   const updateLatestDate = (newDate) => {
-    if (!latestDate || new Date(newDate) > new Date(latestDate)) {
-        localStorage.setItem("latest_date", newDate);
-        setLatestDate(newDate);
+    // Parse the newDate and add 1 day
+    let updatedDate = new Date(newDate);
+    updatedDate.setDate(updatedDate.getDate() + 1);
+
+    // Convert updatedDate back to a string if necessary (e.g., ISO format)
+    let updatedDateString = updatedDate.toISOString().split('T')[0]; // Example format: "YYYY-MM-DD"
+
+    // Compare and update the latestDate if necessary
+    if (!latestDate || new Date(updatedDateString) > new Date(latestDate)) {
+        localStorage.setItem("latest_date", updatedDateString);
+        setLatestDate(updatedDateString);
     }
-  };
+};
 
   // Validates data in the form
   const validate = () => {
@@ -45,8 +53,8 @@ const AddPurchasePage = () => {
     // Date validation
     if (!formData.date) {
       newErrors.date = "Date is required.";
-    } else if (new Date(formData.date) < new Date(storedLatestDate) || new Date(formData.date) > new Date()) {
-      newErrors.date = "Date must be between January 1, 1970, and today.";
+    } else if (new Date(formData.date) < new Date(storedLatestDate)+1 || new Date(formData.date) > new Date()) {
+      newErrors.date = "Date must be between a previous transaction, and today.";
     }
 
     // Cost validation
@@ -163,7 +171,7 @@ const AddPurchasePage = () => {
             value={formData.date}
             onChange={handleChange}
             max={today}
-            min="1971-01-01"
+            min={storedLatestDate}
           />
           <p style={{ color: "red" }}>{errors.date}</p>
         </div>

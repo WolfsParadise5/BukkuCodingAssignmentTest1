@@ -16,9 +16,9 @@ const MainPage = () => {
         router.push(pageToRoute);
     };
 
-    const calculateWAC = (quantity, cost) => {
-        if (quantity && cost) {
-            return parseFloat((parseFloat(cost) / parseInt(quantity)).toFixed(2));
+    const calculateWAC = (quantity, price_per_unit) => {
+        if (quantity && price_per_unit) {
+            return parseFloat((parseFloat(price_per_unit) / parseInt(quantity)).toFixed(2));
         }
         return 0;
     };
