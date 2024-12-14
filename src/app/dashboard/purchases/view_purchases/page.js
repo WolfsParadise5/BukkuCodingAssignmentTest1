@@ -35,7 +35,7 @@ const ViewPurchasePage = () => {
             <th>Date</th>
             <th>Transaction No.</th>
             <th>Quantity</th>
-            <th>Cost</th>
+            <th>Cost (RM)</th>
           </tr>
         </thead>
         <tbody>

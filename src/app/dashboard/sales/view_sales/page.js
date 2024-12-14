@@ -39,18 +39,17 @@ const ViewSalesPage = () => {
             <th>Quantity</th>
             <th>Sales Price per unit (RM)</th>
             <th>Total Amount (RM)</th>
-            <th>Total Cost (RM)</th>
           </tr>
         </thead>
         <tbody>
           {data.length > 0 ? (
             data.map((item) => (
               <tr key={item.transaction_id}>
+                <td>{item.date}</td>
                 <td>{item.transaction_id}</td>
                 <td>{item.quantity}</td>
                 <td>{item.price_per_unit}</td>
                 <td>{item.total_amount}</td>
-                <td>{item.total_cost}</td>
               </tr>
             ))
           ) : (

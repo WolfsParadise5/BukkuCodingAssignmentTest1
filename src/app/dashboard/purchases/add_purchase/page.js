@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 
 const AddPurchasePage = () => {
+  // Initialize variables
   const [formData, setFormData] = useState({
     transaction_no: "",
     date: "",
@@ -9,11 +10,11 @@ const AddPurchasePage = () => {
     cost: "",
     total_cost: ""
   });
-
   const [errors, setErrors] = useState({});
+  const [latestDate, setLatestDate] = useState("");
   const [submittedData, setSubmittedData] = useState([]);
-
   const today = new Date().toISOString().split("T")[0];
+  const storedLatestDate = localStorage.getItem("latest_date") || "1970-01-01";
 
   useEffect(() => {
     // Load data from localStorage when the component mounts
@@ -23,18 +24,29 @@ const AddPurchasePage = () => {
     }
   }, []);
 
+  // To set the latest date into localStorage
+  const updateLatestDate = (newDate) => {
+    if (!latestDate || new Date(newDate) > new Date(latestDate)) {
+        localStorage.setItem("latest_date", newDate);
+        setLatestDate(newDate);
+    }
+  };
+
+  // Validates data in the form
   const validate = () => {
     const newErrors = {};
 
     // Transaction no. validation
     if (!formData.transaction_no) {
-
+      newErrors.transaction_no = "Transaction No. is required.";
+    } else if (!/^[a-zA-Z0-9]+$/.test(formData.transaction_no)) {
+        newErrors.transaction_no = "Transaction No. can only contain numbers and letters.";
     }
     // Date validation
     if (!formData.date) {
       newErrors.date = "Date is required.";
-    } else if (new Date(formData.date) < new Date("1971-01-01") || new Date(formData.date) > new Date()) {
-      newErrors.date = "Date must be between January 1, 1971, and today.";
+    } else if (new Date(formData.date) < new Date(storedLatestDate) || new Date(formData.date) > new Date()) {
+      newErrors.date = "Date must be between January 1, 1970, and today.";
     }
 
     // Cost validation
@@ -105,6 +117,9 @@ const AddPurchasePage = () => {
       localStorage.setItem('total_cost', updatedTotalCost.toString());
       localStorage.setItem('total_quantity', updatedTotalQuantity.toString());
   
+      // Update latest transaction date
+      updateLatestDate(formData.date)
+
       // Reset the form
       setFormData({
         transaction_no: "",

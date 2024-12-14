@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-export default function Page() {
+export default function AddSale() {
     // Initialize variables
     const [formData, setFormData] = useState({
       date: "",
@@ -12,12 +12,14 @@ export default function Page() {
       total_amount: 0,
     });
     const [errors, setErrors] = useState({});
+    const [latestDate, setLatestDate] = useState("");
     const [submittedData, setSubmittedData] = useState([]);
     const today = new Date().toISOString().split("T")[0];
-
-    // Fetch existing localStorage values
     const [existingQuantity, setExistingQuantity] = useState(0);
     const [existingTotalCost, setExistingTotalCost] = useState(0);
+    
+    // Fetch existing localStorage values
+    const storedLatestDate = localStorage.getItem("latest_date") || "1970-01-01";
 
     useEffect(() => {
         const storedQuantity = localStorage.getItem('total_quantity');
@@ -32,14 +34,23 @@ export default function Page() {
         }
     }, []);
 
+    // To set the latest date into localStorage
+    const updateLatestDate = (newDate) => {
+      if (!latestDate || new Date(newDate) > new Date(latestDate)) {
+          localStorage.setItem("latest_date", newDate);
+          setLatestDate(newDate);
+      }
+    };
+
+    // Validates data in the form
     const validate = () => {
         const newErrors = {};
 
         // Date validation
         if (!formData.date) {
             newErrors.date = "Date is required.";
-        } else if (new Date(formData.date) < new Date("1970-01-01") || new Date(formData.date) > new Date()) {
-            newErrors.date = "Date must be between January 1, 1970, and today.";
+        } else if (new Date(formData.date) < new Date(storedLatestDate) || new Date(formData.date) > new Date()) {
+            newErrors.date = "Date must be between a previous transaction and today.";
         }
 
         // Transaction No. validation
@@ -53,7 +64,7 @@ export default function Page() {
         if (!formData.quantity || isNaN(formData.quantity) || formData.quantity <= 0) {
             newErrors.quantity = "Quantity must be a positive number.";
         } else if (formData.quantity > existingQuantity) {
-            newErrors.quantity = "Not enough items in stock. Please adjust the quantity.";
+            newErrors.quantity = "Not enough recorded items in stock. Please adjust accordingly.";
         }
 
         // Sales Price validation
@@ -64,10 +75,10 @@ export default function Page() {
         }
 
         // Check weighted cost average constraint
-        const totalCost = formData.quantity * formData.price_per_unit;
-        if (existingTotalCost - totalCost < 0) {
-            newErrors.price_per_unit = "Total cost would exceed available funds. Adjust your values.";
-        }
+        // const totalCost = formData.quantity * formData.price_per_unit;
+        // if (existingTotalCost - totalCost < 0) {
+        //     newErrors.price_per_unit = "Total cost would exceed available funds. Adjust your values.";
+        // }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -85,6 +96,9 @@ export default function Page() {
 
             localStorage.setItem('total_quantity', updatedQuantity.toString());
             localStorage.setItem("total_cost", updatedTotalCost.toString());
+            
+            // Update latest transaction date
+            updateLatestDate(formData.date)
 
             // Add the total cost to formData
             const updatedFormData = {
@@ -176,21 +190,21 @@ export default function Page() {
           <table border="1" style={{ width: "100%", textAlign: "left" }}>
             <thead>
               <tr>
+                <th>Date</th>
                 <th>Transaction No.</th>
                 <th>Quantity</th>
-                <th>Date</th>
-                <th>Cost</th>
-                <th>Total Cost</th>
+                <th>Sales Price per unit (RM)</th>
+                <th>Total Amount (RM)</th>
               </tr>
             </thead>
             <tbody>
               {submittedData.map((item, index) => (
                 <tr key={index}>
-                  <td>{item.transaction_no}</td>
-                  <td>{item.quantity}</td>
                   <td>{item.date}</td>
-                  <td>{item.cost}</td>
-                  <td>{item.total_cost}</td>
+                  <td>{item.transaction_id}</td>
+                  <td>{item.quantity}</td>
+                  <td>{item.price_per_unit}</td>
+                  <td>{item.total_amount}</td>
                 </tr>
               ))}
             </tbody>
@@ -200,4 +214,5 @@ export default function Page() {
         )}
         </div>
     );
-}
+};
+
